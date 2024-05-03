@@ -4,13 +4,14 @@
 	"build": {
 		"dockerfile": "Dockerfile"
 	},
-"remoteUser": "node",
-"customizations": {
-	"vscode": {
-		"extensions": [
-			"NomicFoundation.hardhat-solidity",
-			"tintinweb.vscode-inline-bookmarks"
-		]
-	}
-}
+	"remoteUser": "node",
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"NomicFoundation.hardhat-solidity",
+				"tintinweb.vscode-inline-bookmarks"
+			]
+		}
+	},
+	"postCreateCommand": "npm i ."
 }
