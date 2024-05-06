@@ -28,6 +28,15 @@ contract Marketplace is Ownable(msg.sender) {
      * @param initialDuration initial subscription duration
      */
     constructor(uint256 initialPrice, uint256 initialDuration) {
+        require(
+            initialPrice > 0,
+            'Price should be > 0'
+        );
+        require(
+            initialDuration > 0,
+            'Duration should be > 0'
+        );
+        
         price = initialPrice;
         duration = initialDuration;
     }
