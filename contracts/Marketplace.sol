@@ -30,13 +30,13 @@ contract Marketplace is Ownable(msg.sender) {
     constructor(uint256 initialPrice, uint256 initialDuration) {
         require(
             initialPrice > 0,
-            'Price should be > 0'
+            'Price should be > 0 wei'
         );
         require(
             initialDuration > 0,
-            'Duration should be > 0'
+            'Duration should be > 0 day'
         );
-        
+
         price = initialPrice;
         duration = initialDuration;
     }

@@ -48,15 +48,15 @@ describe('Marketplace', function() {
 
         it('should fail when price = 0', async function () {
             const Marketplace = await ethers.getContractFactory('Marketplace')
-            await expect(Marketplace.deploy(0, 0)).to.be.revertedWith(
-                'Price should be > 0'
+            await expect(Marketplace.deploy(0, process.env.MARKETPLACE_INITIAL_DURATION)).to.be.revertedWith(
+                'Price should be > 0 wei'
             )
         })
 
         it('should fail when duration = 0', async function () {
             const Marketplace = await ethers.getContractFactory('Marketplace')
-            await expect(Marketplace.deploy(0, 0)).to.be.revertedWith(
-                'Price should be > 0'
+            await expect(Marketplace.deploy(process.env.MARKETPLACE_INITIAL_PRICE, 0)).to.be.revertedWith(
+                'Duration should be > 0 day'
             )
         })
     })
