@@ -187,5 +187,20 @@ describe('Marketplace', function() {
     })
 
     describe('withdrawals', function () {
+        it('should transfer the funds to the owner', async function () {
+            const {marketplace, owner, otherAccount } = await loadFixture(
+                deployMarketplaceFixture
+            )
+
+            await marketplace.connect(otherAccount).subscribe({
+                value: process.env.MARKETPLACE_INITIAL_PRICE
+            })
+
+            await expect(marketplace.withdraw())
+            .to.changeEtherBalances(
+                [owner, marketplace],
+                [process.env.MARKETPLACE_INITIAL_PRICE, BigInt(-process.env.MARKETPLACE_INITIAL_PRICE)]
+            )
+        })
     })
 })
