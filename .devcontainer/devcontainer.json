@@ -13,5 +13,8 @@
 			]
 		}
 	},
-	"postCreateCommand": "npm i ."
+	"postCreateCommand": "npm i .",
+	"runArgs": [
+		"--network=host"
+	]
 }
