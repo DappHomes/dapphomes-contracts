@@ -2,7 +2,7 @@
 
 Home data subscription marketplace.
 
-## development and testing
+## development and testing with ganache
 
 1. Install [docker](https://docs.docker.com/engine/install/) within the preferred operating system.
 2. Open vscode and install [remote development plugin](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.vscode-remote-extensionpack) typing `Ctrl + P` and pasting `ext install ms-vscode-remote.vscode-remote-extensionpack`.
@@ -17,4 +17,11 @@ git clone https://github.com/DappHomes/dapphomes-contracts.git
 npx hardhat help
 npx hardhat compile
 npx hardhat test
+```
+
+6. Open ganache.
+7. Execute the following command from vscode terminal:
+
+```bash
+node scripts/deploy.js
 ```
