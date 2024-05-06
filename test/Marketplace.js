@@ -61,6 +61,42 @@ describe('Marketplace', function() {
         })
     })
 
+    describe('access control', function () {
+        it('should be owner to update price', async function () {
+            const {marketplace, owner, otherAccount } = await loadFixture(
+                deployMarketplaceFixture
+            )
+
+            const updatedPrice = 100
+
+            await expect(marketplace.connect(otherAccount).updatePrice(updatedPrice))
+            .to.be.revertedWithCustomError(marketplace, 'OwnableUnauthorizedAccount')
+            .withArgs(otherAccount.address)
+        })
+
+        it('should be owner to update duration', async function () {
+            const {marketplace, owner, otherAccount } = await loadFixture(
+                deployMarketplaceFixture
+            )
+
+            const updatedDuration = 100
+
+            await expect(marketplace.connect(otherAccount).updateDuration(updatedDuration))
+            .to.be.revertedWithCustomError(marketplace, 'OwnableUnauthorizedAccount')
+            .withArgs(otherAccount.address)
+        })
+
+        it('should be owner to withdraw', async function () {
+            const {marketplace, owner, otherAccount } = await loadFixture(
+                deployMarketplaceFixture
+            )
+
+            await expect(marketplace.connect(otherAccount).withdraw())
+            .to.be.revertedWithCustomError(marketplace, 'OwnableUnauthorizedAccount')
+            .withArgs(otherAccount.address)
+        })
+    })
+
     describe('subscription', function() {
         it('should fail when amount < subscription price', async function () {
             const {marketplace, owner, otherAccount } = await loadFixture(
