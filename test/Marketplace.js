@@ -166,5 +166,26 @@ describe('Marketplace', function() {
                 updatedDuration
             )
         })
+
+        it('should emit an event on withdraw', async function () {
+            const {marketplace, owner, otherAccount } = await loadFixture(
+                deployMarketplaceFixture
+            )
+
+            await marketplace.connect(otherAccount).subscribe({
+                value: process.env.MARKETPLACE_INITIAL_PRICE
+            })
+
+            await expect(marketplace.withdraw())
+            .to.emit(marketplace, "Withdrawal")
+            .withArgs(
+                owner.address,
+                process.env.MARKETPLACE_INITIAL_PRICE,
+                anyValue
+            )
+        })
+    })
+
+    describe('withdrawals', function () {
     })
 })

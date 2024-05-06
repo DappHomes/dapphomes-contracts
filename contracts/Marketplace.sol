@@ -21,6 +21,8 @@ contract Marketplace is Ownable(msg.sender) {
     event UpdateSubscriptionPrice(uint256);
     // event: update subscription duration
     event UpdateSubscriptionDuration(uint256);
+    // event: withdrawal
+    event Withdrawal(address, uint256, uint256);
 
     /**
      * constructor
@@ -95,6 +97,9 @@ contract Marketplace is Ownable(msg.sender) {
      */
     function withdraw() public onlyOwner {
         uint256 amount = address(this).balance;
+
+        emit Withdrawal(msg.sender, amount, block.timestamp);
+
         payable(msg.sender).transfer(amount);
     }
 }
