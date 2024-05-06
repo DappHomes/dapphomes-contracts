@@ -61,6 +61,33 @@ describe('Marketplace', function() {
         })
     })
 
+    describe('subscription', function() {
+        it('should fail when amount < subscription price', async function () {
+            const {marketplace, owner, otherAccount } = await loadFixture(
+                deployMarketplaceFixture
+            )
+
+            await expect(marketplace.connect(otherAccount).subscribe({
+                value: BigInt(process.env.MARKETPLACE_INITIAL_PRICE) - BigInt(1)
+            })).to.be.revertedWith('Cannot subscribe, not enough funds')
+        })
+
+        it('should set correct duration', async function () {
+            const {marketplace, owner, otherAccount } = await loadFixture(
+                deployMarketplaceFixture
+            )
+
+            await marketplace.connect(otherAccount).subscribe({
+                value: process.env.MARKETPLACE_INITIAL_PRICE
+            })
+
+            expect(await marketplace.subscriberDuration(otherAccount))
+            .to.be.equal(
+                await time.latest() + process.env.MARKETPLACE_INITIAL_DURATION * 24 * 60 * 60
+            )
+        })
+    })
+
     describe('events', function () {
         it('should emit an event on subscribe', async function () {
             const {marketplace, owner, otherAccount } = await loadFixture(
