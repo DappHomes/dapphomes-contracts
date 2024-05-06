@@ -62,6 +62,15 @@ contract Marketplace is Ownable(msg.sender) {
     }
 
     /**
+     * check user valid period
+     * @param subscriber user to check subscription status
+     */
+    function isSubscribed(address subscriber) public view returns (bool) {
+        require(subscribers[subscriber] > 0, 'Subscriptor does not exists');
+        return block.timestamp < subscribers[subscriber];
+    }
+
+    /**
      * set new subscription price
      * @param newPrice updated subscription price
      */

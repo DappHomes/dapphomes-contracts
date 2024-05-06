@@ -122,6 +122,33 @@ describe('Marketplace', function() {
                 await time.latest() + process.env.MARKETPLACE_INITIAL_DURATION * 24 * 60 * 60
             )
         })
+
+        it('should revert when subscriber does not exists', async function () {
+            const {marketplace, owner, otherAccount } = await loadFixture(
+                deployMarketplaceFixture
+            )
+
+            await expect(marketplace.isSubscribed(otherAccount))
+            .to.be.revertedWith('Subscriptor does not exists')
+        })
+
+        it('should reverts when duration expires', async function () {
+            const {marketplace, owner, otherAccount } = await loadFixture(
+                deployMarketplaceFixture
+            )
+
+            await marketplace.connect(otherAccount).subscribe({
+                value: process.env.MARKETPLACE_INITIAL_PRICE
+            })
+
+            await time.increaseTo(
+                (await time.latest()) +
+                ((process.env.MARKETPLACE_INITIAL_DURATION + 1) * 24 * 60 * 60)
+            )
+
+            expect(await marketplace.isSubscribed(otherAccount))
+            .equals(false)
+        })
     })
 
     describe('events', function () {
