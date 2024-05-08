@@ -59,6 +59,14 @@ describe('Marketplace', function() {
                 'Duration should be > 0 day'
             )
         })
+
+        it('should be initially unpaused', async function () {
+            const {marketplace, owner } = await loadFixture(
+                deployMarketplaceFixture
+            )
+
+            expect(await marketplace.paused()).to.equal(false)
+        })
     })
 
     describe('access control', function () {
@@ -228,6 +236,119 @@ describe('Marketplace', function() {
                 [owner, marketplace],
                 [process.env.MARKETPLACE_INITIAL_PRICE, BigInt(-process.env.MARKETPLACE_INITIAL_PRICE)]
             )
+        })
+
+        it('should fail when paused', async function () {
+            const {marketplace, owner, otherAccount } = await loadFixture(
+                deployMarketplaceFixture
+            )
+
+            await marketplace.pause()
+
+            await expect(marketplace.withdraw())
+            .to.be.revertedWithCustomError(marketplace, 'EnforcedPause')
+        })
+    })
+
+    describe('pausable', function () {
+        it('should be paused by owner', async function () {
+            const {marketplace, owner, otherAccount } = await loadFixture(
+                deployMarketplaceFixture
+            )
+
+            await marketplace.pause()
+
+            expect(await marketplace.paused()).to.equal(true)
+        })
+
+        it('should be paused only by owner', async function () {
+            const {marketplace, owner, otherAccount } = await loadFixture(
+                deployMarketplaceFixture
+            )
+
+            await expect(marketplace.connect(otherAccount).pause())
+            .to.be.revertedWithCustomError(marketplace, 'OwnableUnauthorizedAccount')
+            .withArgs(otherAccount.address)
+        })
+
+        it('should be unpaused by owner', async function () {
+            const {marketplace, owner, otherAccount } = await loadFixture(
+                deployMarketplaceFixture
+            )
+
+            await marketplace.pause()
+            await marketplace.unpause()
+
+            expect(await marketplace.paused()).to.equal(false)
+        })
+
+        it('should be unpaused only by owner', async function () {
+            const {marketplace, owner, otherAccount } = await loadFixture(
+                deployMarketplaceFixture
+            )
+
+            await expect(marketplace.connect(otherAccount).unpause())
+            .to.be.revertedWithCustomError(marketplace, 'OwnableUnauthorizedAccount')
+            .withArgs(otherAccount.address)
+        })
+
+        it('should fail when re-pause', async function () {
+            const {marketplace, owner, otherAccount } = await loadFixture(
+                deployMarketplaceFixture
+            )
+
+            await marketplace.pause()
+
+            await expect(marketplace.pause())
+            .to.be.revertedWithCustomError(marketplace, 'EnforcedPause')
+        })
+
+        it('should fail when re-unpaused', async function () {
+            const {marketplace, owner, otherAccount } = await loadFixture(
+                deployMarketplaceFixture
+            )
+
+            await expect(marketplace.unpause())
+            .to.be.revertedWithCustomError(marketplace, 'ExpectedPause')
+        })
+
+        it('subscribe should fail when paused', async function () {
+            const {marketplace, owner, otherAccount } = await loadFixture(
+                deployMarketplaceFixture
+            )
+
+            await marketplace.pause()
+
+            const updatedPrice = 100
+
+            await expect(marketplace.subscribe({value: updatedPrice}))
+            .to.be.revertedWithCustomError(marketplace, 'EnforcedPause')
+        })
+
+        it('update price should fail when paused', async function () {
+            const {marketplace, owner, otherAccount } = await loadFixture(
+                deployMarketplaceFixture
+            )
+
+            await marketplace.pause()
+
+            const updatedPrice = 100
+
+            await expect(marketplace.updatePrice(updatedPrice))
+            .to.be.revertedWithCustomError(marketplace, 'EnforcedPause')
+        })
+
+        it('update duration should fail when paused', async function () {
+            const {marketplace, owner, otherAccount } = await loadFixture(
+                deployMarketplaceFixture
+            )
+
+            await marketplace.pause()
+
+            const updatedDuration = 100
+
+            await expect(marketplace.updateDuration(updatedDuration))
+            .to.be.revertedWithCustomError(marketplace, 'EnforcedPause')
         })
     })
 })

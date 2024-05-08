@@ -5,8 +5,9 @@ pragma solidity ^0.8.24;
 // import "hardhat/console.sol";
 
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Pausable.sol";
 
-contract Marketplace is Ownable(msg.sender) {
+contract Marketplace is Ownable(msg.sender), Pausable {
 
     // suscription price
     uint256 public price;
@@ -46,7 +47,7 @@ contract Marketplace is Ownable(msg.sender) {
     /**
      * subscribe to marketplace
      */
-    function subscribe() public payable {
+    function subscribe() public payable whenNotPaused {
         require(msg.value >= price, "Cannot subscribe, not enough funds");
         subscribers[msg.sender] = block.timestamp + duration * 1 days;
 
@@ -74,7 +75,7 @@ contract Marketplace is Ownable(msg.sender) {
      * set new subscription price
      * @param newPrice updated subscription price
      */
-    function updatePrice(uint256 newPrice) public onlyOwner {
+    function updatePrice(uint256 newPrice) public onlyOwner whenNotPaused {
         require(newPrice > 0, "Price should be > 0 wei");
         price = newPrice;
 
@@ -85,7 +86,7 @@ contract Marketplace is Ownable(msg.sender) {
      * set new subscription duration
      * @param newDuration updated subscription duration
      */
-    function updateDuration(uint256 newDuration) public onlyOwner {
+    function updateDuration(uint256 newDuration) public onlyOwner whenNotPaused {
         require(newDuration > 0, "Duration should be > 0 day");
         duration = newDuration;
 
@@ -104,11 +105,25 @@ contract Marketplace is Ownable(msg.sender) {
     /**
      * withdraw users subscriptions to owner
      */
-    function withdraw() public onlyOwner {
+    function withdraw() public onlyOwner whenNotPaused {
         uint256 amount = address(this).balance;
 
         emit Withdrawal(msg.sender, amount, block.timestamp);
 
         payable(msg.sender).transfer(amount);
+    }
+
+    /**
+     * pause by owner onlye when not paused
+     */
+    function pause() public onlyOwner whenNotPaused {
+        _pause();
+    }
+
+    /**
+     * unpause by owner onlye when paused
+     */
+    function unpause() public onlyOwner whenPaused {
+        _unpause();
     }
 }
