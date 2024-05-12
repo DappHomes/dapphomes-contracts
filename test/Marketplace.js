@@ -18,7 +18,8 @@ describe('Marketplace', function() {
         const Marketplace = await ethers.getContractFactory('Marketplace')
         const marketplace = await Marketplace.deploy(
             process.env.MARKETPLACE_INITIAL_PRICE,
-            process.env.MARKETPLACE_INITIAL_DURATION
+            process.env.MARKETPLACE_INITIAL_DURATION,
+            process.env.MARKETPLACE_LISTING_TOKEN
         )
 
         return { marketplace, owner, otherAccount }
@@ -48,14 +49,14 @@ describe('Marketplace', function() {
 
         it('should fail when price = 0', async function () {
             const Marketplace = await ethers.getContractFactory('Marketplace')
-            await expect(Marketplace.deploy(0, process.env.MARKETPLACE_INITIAL_DURATION)).to.be.revertedWith(
+            await expect(Marketplace.deploy(0, process.env.MARKETPLACE_INITIAL_DURATION, process.env.MARKETPLACE_LISTING_TOKEN)).to.be.revertedWith(
                 'Price should be > 0 wei'
             )
         })
 
         it('should fail when duration = 0', async function () {
             const Marketplace = await ethers.getContractFactory('Marketplace')
-            await expect(Marketplace.deploy(process.env.MARKETPLACE_INITIAL_PRICE, 0)).to.be.revertedWith(
+            await expect(Marketplace.deploy(process.env.MARKETPLACE_INITIAL_PRICE, 0, process.env.MARKETPLACE_LISTING_TOKEN)).to.be.revertedWith(
                 'Duration should be > 0 day'
             )
         })
@@ -66,6 +67,11 @@ describe('Marketplace', function() {
             )
 
             expect(await marketplace.paused()).to.equal(false)
+        })
+
+        it('should set the right listing token', async function () {
+            const { marketplace, owner } = await loadFixture(deployMarketplaceFixture)
+            expect(await marketplace.listToken()).to.equal(process.env.MARKETPLACE_LISTING_TOKEN)
         })
     })
 
@@ -90,6 +96,18 @@ describe('Marketplace', function() {
             const updatedDuration = 100
 
             await expect(marketplace.connect(otherAccount).updateDuration(updatedDuration))
+            .to.be.revertedWithCustomError(marketplace, 'OwnableUnauthorizedAccount')
+            .withArgs(otherAccount.address)
+        })
+
+        it('should be owner to update token', async function () {
+            const {marketplace, owner, otherAccount } = await loadFixture(
+                deployMarketplaceFixture
+            )
+
+            const updatedToken = 'abcdef'
+
+            await expect(marketplace.connect(otherAccount).updateListToken(updatedToken))
             .to.be.revertedWithCustomError(marketplace, 'OwnableUnauthorizedAccount')
             .withArgs(otherAccount.address)
         })
@@ -348,6 +366,19 @@ describe('Marketplace', function() {
             const updatedDuration = 100
 
             await expect(marketplace.updateDuration(updatedDuration))
+            .to.be.revertedWithCustomError(marketplace, 'EnforcedPause')
+        })
+
+        it('update list token should fail when paused', async function () {
+            const {marketplace, owner, otherAccount } = await loadFixture(
+                deployMarketplaceFixture
+            )
+
+            await marketplace.pause()
+
+            const updatedToken = 'abcdef'
+
+            await expect(marketplace.updateListToken(updatedToken))
             .to.be.revertedWithCustomError(marketplace, 'EnforcedPause')
         })
     })

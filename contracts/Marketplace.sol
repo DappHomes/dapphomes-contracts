@@ -13,6 +13,8 @@ contract Marketplace is Ownable(msg.sender), Pausable {
     uint256 public price;
     // subscription days
     uint256 public duration;
+    // listing token
+    string public listToken;
     // subscribers mapping
     mapping (address => uint256) subscribers;
 
@@ -22,6 +24,8 @@ contract Marketplace is Ownable(msg.sender), Pausable {
     event UpdateSubscriptionPrice(uint256);
     // event: update subscription duration
     event UpdateSubscriptionDuration(uint256);
+    // event: update list token
+    event UpdateListToken(address);
     // event: withdrawal
     event Withdrawal(address, uint256, uint256);
 
@@ -29,8 +33,9 @@ contract Marketplace is Ownable(msg.sender), Pausable {
      * constructor
      * @param initialPrice initial subscription price
      * @param initialDuration initial subscription duration
+     * @param token encrypted files listing token
      */
-    constructor(uint256 initialPrice, uint256 initialDuration) {
+    constructor(uint256 initialPrice, uint256 initialDuration, string memory token) {
         require(
             initialPrice > 0,
             'Price should be > 0 wei'
@@ -42,6 +47,7 @@ contract Marketplace is Ownable(msg.sender), Pausable {
 
         price = initialPrice;
         duration = initialDuration;
+        listToken = token;
     }
 
     /**
@@ -91,6 +97,16 @@ contract Marketplace is Ownable(msg.sender), Pausable {
         duration = newDuration;
 
         emit UpdateSubscriptionDuration(duration);
+    }
+
+    /**
+     * set new listing token
+     * @param newToken updated listing token
+     */
+    function updateListToken(string memory newToken) public onlyOwner whenNotPaused {
+        listToken = newToken;
+
+        emit UpdateListToken(msg.sender);
     }
 
     /**
