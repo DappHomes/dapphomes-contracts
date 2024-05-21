@@ -1,0 +1,9 @@
+services:
+
+  dapphomes-contracts:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    image: dapphomes-contracts
+    container_name: dapphomes-contracts
+    env_file: .env
