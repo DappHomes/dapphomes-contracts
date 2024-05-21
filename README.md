@@ -47,3 +47,14 @@ npx hardhat test
 ```bash
 node scripts/deploy.js
 ```
+
+## deploy to amoy
+
+Into previously `dapphomes-contracts` folder:
+
+```bash
+docker compose build
+docker run -it dapphomes-contracts
+```
+
+And confirm amoy deployment.

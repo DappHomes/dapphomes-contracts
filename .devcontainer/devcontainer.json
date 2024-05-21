@@ -9,7 +9,8 @@
 		"vscode": {
 			"extensions": [
 				"NomicFoundation.hardhat-solidity",
-				"tintinweb.vscode-inline-bookmarks"
+				"tintinweb.vscode-inline-bookmarks",
+				"ms-azuretools.vscode-docker"
 			]
 		}
 	},
