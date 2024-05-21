@@ -11,15 +11,19 @@ const dotenv = require('dotenv')
 
 dotenv.config()
 
+const price = process.env.MARKETPLACE_INITIAL_PRICE || 700000000
+const duration = process.env.MARKETPLACE_INITIAL_DURATION || 2
+const listToken = process.env.MARKETPLACE_LISTING_TOKEN || 'abcdefg'
+
 describe('Marketplace', function() {
     async function deployMarketplaceFixture() {
         const [owner, otherAccount] = await ethers.getSigners()
         
         const Marketplace = await ethers.getContractFactory('Marketplace')
         const marketplace = await Marketplace.deploy(
-            process.env.MARKETPLACE_INITIAL_PRICE,
-            process.env.MARKETPLACE_INITIAL_DURATION,
-            process.env.MARKETPLACE_LISTING_TOKEN
+            price,
+            duration,
+            listToken
         )
 
         return { marketplace, owner, otherAccount }
@@ -36,7 +40,7 @@ describe('Marketplace', function() {
                 deployMarketplaceFixture
             )
 
-            expect(await marketplace.price()).to.equal(process.env.MARKETPLACE_INITIAL_PRICE)
+            expect(await marketplace.price()).to.equal(price)
         })
 
         it('should set the right subscription duration', async function () {
@@ -44,19 +48,19 @@ describe('Marketplace', function() {
                 deployMarketplaceFixture
             )
 
-            expect(await marketplace.duration()).to.equal(process.env.MARKETPLACE_INITIAL_DURATION)
+            expect(await marketplace.duration()).to.equal(duration)
         })
 
         it('should fail when price = 0', async function () {
             const Marketplace = await ethers.getContractFactory('Marketplace')
-            await expect(Marketplace.deploy(0, process.env.MARKETPLACE_INITIAL_DURATION, process.env.MARKETPLACE_LISTING_TOKEN)).to.be.revertedWith(
+            await expect(Marketplace.deploy(0, duration, listToken)).to.be.revertedWith(
                 'Price should be > 0 wei'
             )
         })
 
         it('should fail when duration = 0', async function () {
             const Marketplace = await ethers.getContractFactory('Marketplace')
-            await expect(Marketplace.deploy(process.env.MARKETPLACE_INITIAL_PRICE, 0, process.env.MARKETPLACE_LISTING_TOKEN)).to.be.revertedWith(
+            await expect(Marketplace.deploy(price, 0, listToken)).to.be.revertedWith(
                 'Duration should be > 0 day'
             )
         })
@@ -71,7 +75,7 @@ describe('Marketplace', function() {
 
         it('should set the right listing token', async function () {
             const { marketplace, owner } = await loadFixture(deployMarketplaceFixture)
-            expect(await marketplace.listToken()).to.equal(process.env.MARKETPLACE_LISTING_TOKEN)
+            expect(await marketplace.listToken()).to.equal(listToken)
         })
     })
 
@@ -130,7 +134,7 @@ describe('Marketplace', function() {
             )
 
             await expect(marketplace.connect(otherAccount).subscribe({
-                value: BigInt(process.env.MARKETPLACE_INITIAL_PRICE) - BigInt(1)
+                value: BigInt(price) - BigInt(1)
             })).to.be.revertedWith('Cannot subscribe, not enough funds')
         })
 
@@ -140,12 +144,12 @@ describe('Marketplace', function() {
             )
 
             await marketplace.connect(otherAccount).subscribe({
-                value: process.env.MARKETPLACE_INITIAL_PRICE
+                value: price
             })
 
             expect(await marketplace.subscriberDuration(otherAccount))
             .to.be.equal(
-                await time.latest() + process.env.MARKETPLACE_INITIAL_DURATION * 24 * 60 * 60
+                await time.latest() + duration * 24 * 60 * 60
             )
         })
 
@@ -164,12 +168,12 @@ describe('Marketplace', function() {
             )
 
             await marketplace.connect(otherAccount).subscribe({
-                value: process.env.MARKETPLACE_INITIAL_PRICE
+                value: price
             })
 
             await time.increaseTo(
                 (await time.latest()) +
-                ((process.env.MARKETPLACE_INITIAL_DURATION + 1) * 24 * 60 * 60)
+                ((duration + 1) * 24 * 60 * 60)
             )
 
             expect(await marketplace.isSubscribed(otherAccount))
@@ -184,11 +188,11 @@ describe('Marketplace', function() {
             )
 
             await expect(marketplace.connect(otherAccount).subscribe({
-                value: process.env.MARKETPLACE_INITIAL_PRICE
+                value: price
             })).to.emit(marketplace, "Subscription")
             .withArgs(
                 otherAccount.address,
-                await time.latest() + process.env.MARKETPLACE_INITIAL_DURATION * 24 * 60 * 60 + 1
+                await time.latest() + duration * 24 * 60 * 60 + 1
             )
         })
 
@@ -226,14 +230,14 @@ describe('Marketplace', function() {
             )
 
             await marketplace.connect(otherAccount).subscribe({
-                value: process.env.MARKETPLACE_INITIAL_PRICE
+                value: price
             })
 
             await expect(marketplace.withdraw())
             .to.emit(marketplace, "Withdrawal")
             .withArgs(
                 owner.address,
-                process.env.MARKETPLACE_INITIAL_PRICE,
+                price,
                 anyValue
             )
         })
@@ -246,13 +250,13 @@ describe('Marketplace', function() {
             )
 
             await marketplace.connect(otherAccount).subscribe({
-                value: process.env.MARKETPLACE_INITIAL_PRICE
+                value: price
             })
 
             await expect(marketplace.withdraw())
             .to.changeEtherBalances(
                 [owner, marketplace],
-                [process.env.MARKETPLACE_INITIAL_PRICE, BigInt(-process.env.MARKETPLACE_INITIAL_PRICE)]
+                [price, BigInt(-price)]
             )
         })
 
