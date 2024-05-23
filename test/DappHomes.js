@@ -9,6 +9,10 @@ const dotenv = require('dotenv')
 
 dotenv.config()
 
+const price = process.env.MARKETPLACE_INITIAL_PRICE || 700000000
+const duration = process.env.MARKETPLACE_INITIAL_DURATION || 2
+const token = process.env.MARKETPLACE_LISTING_TOKEN || 'abcdefg'
+
 describe('DappHomes', function() {
     async function deployDappHomesFixture() {
         const [owner, otherAccount] = await ethers.getSigners()
@@ -106,7 +110,9 @@ describe('DappHomes', function() {
 
             await dappHomes.pause()
 
-            await expect(dappHomes.addMarketplace(otherAccount.address))
+            await expect(dappHomes.createMarketplace(
+                price, duration, token
+            ))
             .to.be.revertedWithCustomError(dappHomes, 'EnforcedPause')
         })
     })
