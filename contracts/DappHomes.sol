@@ -23,7 +23,7 @@ contract DappHomes is Ownable(msg.sender), Pausable {
         uint256 price,
         uint256 duration,
         string memory token
-    ) public whenNotPaused {
+    ) public whenNotPaused returns (address) {
         // create marketplace
         Marketplace marketplace = new Marketplace(price, duration, token);
 
@@ -34,6 +34,8 @@ contract DappHomes is Ownable(msg.sender), Pausable {
         dappHomes.push(marketplace);
 
         emit CreateMarketplace(msg.sender, address(marketplace));
+
+        return address(marketplace);
     }
 
     /**
