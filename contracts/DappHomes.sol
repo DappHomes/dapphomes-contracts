@@ -1,40 +1,48 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity ^0.8.24;
+
+import "./Marketplace.sol";
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Pausable.sol";
 
-interface OwnerInterface {
-    function owner() external view returns (address);
-}
-
 contract DappHomes is Ownable(msg.sender), Pausable {
     // published dapphomes marketplaces
-    address[] public onlineMarketplaces;
+    Marketplace[] public dappHomes;
 
-    // event: add marketplace to public warehouse
-    event AddMarketplace(address, address);
+    // event: create marketplace
+    event CreateMarketplace(address indexed owner, address marketplace);
 
     /**
-     * dapphome marketplace owner can add its marketplace to have public access
-     * @param marketplace dapphome marketplace address
+     * create new dapphome marketplace
+     * @param price initial subscription price
+     * @param duration initial subscription duration
+     * @param token pinned data listting token
      */
-    function addMarketplace(address marketplace) public whenNotPaused {
-        require(
-            OwnerInterface(marketplace).owner() == msg.sender,
-            "You are not the owner of the marketplace"
-        );
+    function createMarketplace(
+        uint256 price,
+        uint256 duration,
+        string memory token
+    ) public whenNotPaused returns (address) {
+        // create marketplace
+        Marketplace marketplace = new Marketplace(price, duration, token);
 
-        onlineMarketplaces.push(marketplace);
+        // transfer ownership or this contract is the owner?
+        marketplace.transferOwnership(msg.sender);
 
-        emit AddMarketplace(msg.sender, marketplace);
+        // store new marketplace
+        dappHomes.push(marketplace);
+
+        emit CreateMarketplace(msg.sender, address(marketplace));
+
+        return address(marketplace);
     }
 
     /**
      * get dapphomes marketplaces public address
      */
-    function getMarketplaces() public view returns (address[] memory) {
-        return onlineMarketplaces;
+    function getDappHomes() public view returns (Marketplace[] memory) {
+        return dappHomes;
     }
 
     /**

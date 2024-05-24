@@ -3,11 +3,16 @@
 const {
     loadFixture,
 } = require("@nomicfoundation/hardhat-toolbox/network-helpers")
+const { anyValue } = require("@nomicfoundation/hardhat-chai-matchers/withArgs")
 const { expect } = require("chai")
 const { ethers } = require("hardhat")
 const dotenv = require('dotenv')
 
 dotenv.config()
+
+const price = process.env.MARKETPLACE_INITIAL_PRICE || 700000000
+const duration = process.env.MARKETPLACE_INITIAL_DURATION || 2
+const token = process.env.MARKETPLACE_LISTING_TOKEN || 'abcdefg'
 
 describe('DappHomes', function() {
     async function deployDappHomesFixture() {
@@ -106,8 +111,26 @@ describe('DappHomes', function() {
 
             await dappHomes.pause()
 
-            await expect(dappHomes.addMarketplace(otherAccount.address))
+            await expect(dappHomes.createMarketplace(
+                price, duration, token
+            ))
             .to.be.revertedWithCustomError(dappHomes, 'EnforcedPause')
+        })
+    })
+
+    describe('events', function () {
+        it('should emit an event on create marketplace', async function () {
+            const {dappHomes, owner, otherAccount } = await loadFixture(
+                deployDappHomesFixture
+            )
+
+            await expect(dappHomes.connect(otherAccount).createMarketplace(
+                price, duration, token
+            )).to.emit(dappHomes, "CreateMarketplace")
+            .withArgs(
+                otherAccount.address,
+                anyValue
+            )
         })
     })
 })
