@@ -11,7 +11,7 @@ contract DappHomes is Ownable(msg.sender), Pausable {
     Marketplace[] public dappHomes;
 
     // event: create marketplace
-    event CreateMarketplace(address, address);
+    event CreateMarketplace(address indexed owner, address marketplace);
 
     /**
      * create new dapphome marketplace
