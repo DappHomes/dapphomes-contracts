@@ -2,6 +2,13 @@
 
 dapphomes-contracts provides needed smart contracts to deploy domotic data marketplace into blockchain using a subscription model. User own their data and are able to share it with any consumer and without third parties involved.
 
+## contracts
+
+| Name | Description | Address |
+|---|---|---|
+| DappHomes | Factory contract to deploy marketplaces | [0x9Fe6511002323c34012621F1f48479e08FCb425E](https://www.oklink.com/amoy/address/0x9fe6511002323c34012621f1f48479e08fcb425e) |
+| Marketplace | Users data marketplaces | Each one has its own address |
+
 ## environment
 
 Needed environment variables are:
